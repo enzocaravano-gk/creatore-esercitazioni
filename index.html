@@ -98,6 +98,7 @@
   .notes{width:280px;flex:0 0 280px;display:flex;flex-direction:column}
   .notes label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
   .notes textarea{flex:1;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:none;line-height:1.5}
+  .notes-print{display:none}
 
   .add-ex{align-self:flex-start;border:1.5px dashed var(--accent);color:var(--accent2);background:#f2fbf5;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
   .add-ex:hover{background:#e7f7ee}
@@ -158,7 +159,8 @@
     .field-box{flex:0 0 auto!important;min-width:0}
     .field{width:112mm!important;height:calc(112mm * var(--arh) / var(--arw))!important;aspect-ratio:auto!important;max-width:none!important;min-width:0!important;margin:0!important}
     .notes{flex:1 1 auto!important;width:auto!important;min-width:0}
-    .notes textarea{min-height:100%!important}
+    .notes textarea{display:none!important}
+    .notes-print{display:block!important;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;font-size:13px;line-height:1.5;padding:2px 0;color:var(--ink)}
     .drop-el.sel{outline:none}
     .drop-el .handle,.drop-el .rot{display:none!important}
   }
@@ -642,7 +644,7 @@ function makeExercise(data={}){
   const pitchSel=head.querySelector('.pitch');pitchSel.value=data.pitch||'intero';
   pitchSel.addEventListener('change',()=>{setPitch(field,pitchSel.value);selectEl(null);});
   const notes=document.createElement('div');notes.className='notes';
-  notes.innerHTML=`<label>Note</label><textarea placeholder="Descrizione, obiettivi, varianti, regole, punti di attenzione..."></textarea>`;
+  notes.innerHTML=`<label>Note</label><textarea placeholder="Descrizione, obiettivi, varianti, regole, punti di attenzione..."></textarea><div class="notes-print"></div>`;
   body.appendChild(fbox);body.appendChild(notes);
   ex.appendChild(head);ex.appendChild(body);
   content.insertBefore(ex,addBtn);
@@ -778,7 +780,14 @@ async function doLoad(){
 }
 document.getElementById('btnSave').onclick=doSave;
 document.getElementById('btnLoad').onclick=doLoad;
-document.getElementById('btnPrint').onclick=()=>window.print();
+function syncNotesForPrint(){
+  document.querySelectorAll('.exercise').forEach(ex=>{
+    const ta=ex.querySelector('.notes textarea'); const np=ex.querySelector('.notes-print');
+    if(ta&&np) np.textContent=ta.value;
+  });
+}
+window.addEventListener('beforeprint',syncNotesForPrint);
+document.getElementById('btnPrint').onclick=()=>{syncNotesForPrint();window.print();};
 window.addEventListener('beforeunload',()=>{try{localStorage.setItem('esercitazione_auto',JSON.stringify(collect()));}catch(e){}});
 
 /* ---- La palette sticky resta sotto la barra strumenti ---- */
