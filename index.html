@@ -151,14 +151,14 @@
     header{border:none}
     .exercise{break-inside:avoid;page-break-inside:avoid;margin-bottom:14px;box-shadow:none}
     /* in stampa mostra SEMPRE tutte le esercitazioni, anche quelle compresse */
-    .exercise.collapsed .ex-body{display:flex!important}
+    .exercise.collapsed .ex-body{display:block!important}
     .exercise.collapsed .ex-head{border-bottom:1px solid var(--line)!important}
     .exercise.collapsed select.pitch{display:inline-block}
-    /* dimensioni del campo deterministiche in stampa (niente vh/aspect-ratio: compatibile con tutti i browser) */
-    .ex-body{display:flex!important;flex-wrap:nowrap!important;align-items:stretch;gap:8px}
-    .field-box{flex:0 0 auto!important;min-width:0}
-    .field{width:112mm!important;height:calc(112mm * var(--arh) / var(--arw))!important;aspect-ratio:auto!important;max-width:none!important;min-width:0!important;margin:0!important}
-    .notes{flex:1 1 auto!important;width:auto!important;min-width:0}
+    /* stampa: campo centrato e note SOTTO a tutta larghezza (layout omogeneo, note lunghe che scorrono in pagina) */
+    .ex-body{display:block!important;padding:10px!important}
+    .field-box{width:auto!important}
+    .field{width:128mm!important;height:calc(128mm * var(--arh) / var(--arw))!important;aspect-ratio:auto!important;max-width:100%!important;min-width:0!important;margin:0 auto!important}
+    .notes{width:100%!important;flex:none!important;margin-top:10px}
     .notes textarea{display:none!important}
     .notes-print{display:block!important;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;font-size:13px;line-height:1.5;padding:2px 0;color:var(--ink)}
     .drop-el.sel{outline:none}
