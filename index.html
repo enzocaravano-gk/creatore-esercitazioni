@@ -97,7 +97,7 @@
 
   .notes{width:280px;flex:0 0 280px;display:flex;flex-direction:column}
   .notes label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
-  .notes textarea{flex:1;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:none;line-height:1.5}
+  .notes textarea{flex:1;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:none;line-height:1.5;text-align:justify}
   .notes-print{display:none}
 
   .add-ex{align-self:flex-start;border:1.5px dashed var(--accent);color:var(--accent2);background:#f2fbf5;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
@@ -160,7 +160,7 @@
     .field{width:128mm!important;height:calc(128mm * var(--arh) / var(--arw))!important;aspect-ratio:auto!important;max-width:100%!important;min-width:0!important;margin:0 auto!important}
     .notes{width:100%!important;flex:none!important;margin-top:10px}
     .notes textarea{display:none!important}
-    .notes-print{display:block!important;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;font-size:13px;line-height:1.5;padding:2px 0;color:var(--ink)}
+    .notes-print{display:block!important;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;font-size:13px;line-height:1.5;padding:2px 0;color:var(--ink);text-align:justify;text-justify:inter-word;hyphens:auto;-webkit-hyphens:auto}
     .drop-el.sel{outline:none}
     .drop-el .handle,.drop-el .rot{display:none!important}
   }
