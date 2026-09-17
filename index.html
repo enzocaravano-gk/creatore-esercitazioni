@@ -217,6 +217,7 @@
   <button data-a="big" title="Ingrandisci">＋</button>
   <button data-a="flip" title="Specchia">⇄</button>
   <button data-a="front" title="Porta avanti">⬆︎</button>
+  <button data-a="dup" title="Duplica">⧉</button>
   <button class="del" data-a="del" title="Elimina">🗑</button>
 </div>
 
@@ -597,10 +598,13 @@ floatEl.addEventListener('click',e=>{
     if(a==='small')scaleDraw(g,0.85);
     if(a==='flip')setDraw(g,{x1:c.x2,y1:c.y2,x2:c.x1,y2:c.y1}); // inverte il verso della freccia
     if(a==='front')g.parentNode.appendChild(g);
+    if(a==='dup'){const ng=buildDraw({type:g.dataset.type,color:g.dataset.color,x1:c.x1+24,y1:c.y1+24,x2:c.x2+24,y2:c.y2+24});
+      g.parentNode.insertBefore(ng,g.parentNode.querySelector('.catch'));selectDraw(ng);}
     return;
   }
   if(!selectedEl)return;const el=selectedEl;
   if(a==='del'){el.remove();selectEl(null);return;}
+  if(a==='dup'){duplicateEl(el);return;}
   if(a==='rot+'){el.dataset.rot=(+el.dataset.rot||0)+15;applyT(el);}
   if(a==='rot-'){el.dataset.rot=(+el.dataset.rot||0)-15;applyT(el);}
   if(a==='flip'){el.dataset.flip=el.dataset.flip==='1'?0:1;applyT(el);}
@@ -609,6 +613,18 @@ floatEl.addEventListener('click',e=>{
     if(el.dataset.kind==='text'){let fs=Math.max(1.5,parseFloat(el.dataset.fs)*k);el.dataset.fs=fs;el.style.fontSize=fs+'cqw';}
     else{let w=parseFloat(el.style.width)*k;el.style.width=Math.max(2,w)+'%';}}
 });
+// duplica un oggetto mantenendone dimensione/rotazione/colore, leggermente spostato
+function duplicateEl(el){
+  const field=el.closest('.field'); if(!field) return;
+  const x=Math.min(97,parseFloat(el.style.left)+3), y=Math.min(97,parseFloat(el.style.top)+3);
+  const rot=+el.dataset.rot||0, flip=el.dataset.flip==='1';
+  if(el.dataset.kind==='text')
+    addTextElement(field,x,y,{fs:parseFloat(el.dataset.fs),color:el.dataset.color,rot,flip,text:el.querySelector('.txt').textContent});
+  else if(el.dataset.kind==='shape')
+    addShapeElement(field,el.dataset.shape,x,y,{w:parseFloat(el.style.width),color:el.dataset.color,rot,flip});
+  else
+    addImageElement(field,el.dataset.file,x,y,{w:parseFloat(el.style.width),rot,flip});
+}
 document.addEventListener('keydown',e=>{
   const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA'||document.activeElement.isContentEditable)return;
   if(e.key==='Delete'||e.key==='Backspace'){
