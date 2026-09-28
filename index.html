@@ -312,9 +312,11 @@ function kitURI(file,color){
 }
 // chiave palette "kit corsa.png@#2f6fed" -> {file,color}; null se non è un giocatore con divisa
 function parseKitKey(k){const i=k.indexOf('@'),file=i<0?k:k.slice(0,i);return KIT_FILES.has(file)?{file,color:i<0?null:k.slice(i+1)}:null;}
+const kitPending=new Set(); // ricolori in corso: la stampa li aspetta
 function recolorKit(el,color){
   el.dataset.color=color;
-  kitURI(el.dataset.file,color).then(u=>{if(el.dataset.color===color) el.querySelector('img').src=u;});
+  const pr=kitURI(el.dataset.file,color).then(u=>{if(el.dataset.color===color) el.querySelector('img').src=u;});
+  kitPending.add(pr); pr.finally(()=>kitPending.delete(pr));
 }
 const DEFAULT_W = 7;   // larghezza elemento in % del campo
 const VBW=1050, VBH=680;
@@ -985,7 +987,7 @@ function syncNotesForPrint(){
   });
 }
 window.addEventListener('beforeprint',syncNotesForPrint);
-document.getElementById('btnPrint').onclick=()=>{syncNotesForPrint();window.print();};
+document.getElementById('btnPrint').onclick=async()=>{syncNotesForPrint();await Promise.all([...kitPending]);window.print();};
 window.addEventListener('beforeunload',()=>{try{localStorage.setItem('esercitazione_auto',JSON.stringify(collect()));}catch(e){}});
 
 /* ---- La palette sticky resta sotto la barra strumenti ---- */
