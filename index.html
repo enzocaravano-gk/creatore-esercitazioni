@@ -261,9 +261,9 @@ const CATALOG = {
     "shape:pedina@#ffffff","shape:pedina@#d62f2f","shape:pedina@#2f6fed",
     "shape:pedina@#f2c21e","shape:pedina@#22a04a","shape:pedina@#f08a24"
   ],
-  "Giocatori":[
-    "kit frontale.png","kit spalle.png","kit corsa.png","kit corsa spalle.png"
-  ],
+  // giocatori: granata (originale) + versioni già colorate "file@#colore" (generate dall'app)
+  "Giocatori":["","@#ffffff","@#f2c21e","@#2f6fed","@#f08a24"].flatMap(c=>
+    ["kit frontale.png","kit spalle.png","kit corsa.png","kit corsa spalle.png"].map(f=>f+c)),
   "Portieri":[
     "portiere blu.png","portiere blu spalle.png",
     "portiere arancio1.png","portiere arancio2.png","portiere arancio spalle.png"
@@ -310,6 +310,8 @@ function kitURI(file,color){
     return kitCache[key]=cv.toDataURL('image/png');
   });
 }
+// chiave palette "kit corsa.png@#2f6fed" -> {file,color}; null se non è un giocatore con divisa
+function parseKitKey(k){const i=k.indexOf('@'),file=i<0?k:k.slice(0,i);return KIT_FILES.has(file)?{file,color:i<0?null:k.slice(i+1)}:null;}
 function recolorKit(el,color){
   el.dataset.color=color;
   kitURI(el.dataset.file,color).then(u=>{if(el.dataset.color===color) el.querySelector('img').src=u;});
@@ -363,6 +365,7 @@ for(const [cat,files] of Object.entries(CATALOG)){
     const cell=document.createElement('div');cell.className='pal-item';
     cell.title=isShape?(kind==='pedina'?'pedina (doppio clic per il numero, colore modificabile)':kind+' (ricolorabile)'):f.replace('.png','');cell.draggable=true;
     const img=document.createElement('img');img.src=isShape?shapeURI(kind,sk.color||SHAPE_DEFAULT[kind]):(IMG[f]||f);cell.appendChild(img);
+    const kk=parseKitKey(f); if(kk){img.src=IMG[kk.file];cell.title=kk.file.replace('.png','')+' (colore modificabile)';if(kk.color) kitURI(kk.file,kk.color).then(u=>img.src=u);}
     cell.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',f));
     cell.addEventListener('click',()=>tapAdd(f));
     grid.appendChild(cell);
@@ -534,7 +537,8 @@ function addToField(field,key,xp,yp){
   if(key==='__text__') return addTextElement(field,xp,yp);
   if(key.slice(0,6)==='shape:'){const sk=parseShapeKey(key);return addShapeElement(field,sk.kind,xp,yp,sk.color?{color:sk.color}:{});}
   // giocatori con divisa: larghezza calcolata per avere la stessa altezza delle altre sagome
-  if(KIT_FILES.has(key)) return addImageElement(field,key,xp,yp,{w:{'kit frontale.png':2.8,'kit spalle.png':2.8,'kit corsa.png':5.2,'kit corsa spalle.png':6.7}[key]});
+  const kk=parseKitKey(key);
+  if(kk) return addImageElement(field,kk.file,xp,yp,{w:{'kit frontale.png':2.8,'kit spalle.png':2.8,'kit corsa.png':5.2,'kit corsa spalle.png':6.7}[kk.file],color:kk.color});
   return addImageElement(field,key,xp,yp);
 }
 // campo "attivo" per il tocco: quello più visibile nella finestra
