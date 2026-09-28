@@ -210,6 +210,8 @@
     <button class="mode" data-mode="corsa"><span class="sw" style="border-top-color:#111;border-top-style:dashed"></span> Corsa</button>
     <button class="mode" data-mode="cond"><span class="sw" style="border-top-color:#111;border-top-style:solid"></span>〜 Conduzione</button>
     <button class="mode" data-mode="tiro"><span class="sw" style="border-top-color:#d64545;border-top-width:5px"></span> Tiro</button>
+    <button class="mode" data-mode="linea" title="Linea continua senza freccia (delimita zone)"><span class="sw" style="border-top-color:#111;border-top-style:solid"></span> Linea</button>
+    <button class="mode" data-mode="lineatr" title="Linea tratteggiata senza freccia (delimita zone)"><span class="sw" style="border-top-color:#111;border-top-style:dashed"></span> Linea tratt.</button>
     <button class="mode" data-mode="gomma">🩹 Gomma</button>
   </div>
 </div>
@@ -235,6 +237,8 @@
   <button class="only-line lt" data-a="type" data-t="corsa" title="Corsa (tratteggiata)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
   <button class="only-line lt" data-a="type" data-t="cond" title="Conduzione (ondulata)"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M2 12 q2 -4 4 0 t4 0 t4 0" fill="none" stroke="#111" stroke-width="2.2"/><path d="M15 7 L21 12 L15 17 Z" fill="#111"/></svg></button>
   <button class="only-line lt" data-a="type" data-t="tiro" title="Tiro (spessa)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="16" y2="12" stroke="#d64545" stroke-width="4.5"/><path d="M15 6 L22 12 L15 18 Z" fill="#d64545"/></svg></button>
+  <button class="only-line lt" data-a="type" data-t="linea" title="Linea continua (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5"/></svg></button>
+  <button class="only-line lt" data-a="type" data-t="lineatr" title="Linea tratteggiata (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/></svg></button>
 </div>
 
 <script>
@@ -342,10 +346,11 @@ for(const [cat,files] of Object.entries(CATALOG)){
 /* ---- Stato disegno globale ---- */
 let mode='select';
 let selectedEl=null, selectedDraw=null;
+let lineJustDrawn=false; // true se la freccia e' selezionata solo perche' appena disegnata
 const floatEl=document.getElementById('floatEl');
 const colorInp=document.getElementById('drawColor');
 
-const LINE_TYPES=['pass','corsa','cond','tiro'];
+const LINE_TYPES=['pass','corsa','cond','tiro','linea','lineatr'];
 function setMode(m,keepSel){
   mode=m;
   document.querySelectorAll('.mode').forEach(x=>x.classList.toggle('active',x.dataset.mode===m));
@@ -355,7 +360,7 @@ function setMode(m,keepSel){
 // con una freccia selezionata, scegliere un tipo nella barra la converte (senza attivare il disegno)
 document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{
   const m=b.dataset.mode;
-  if(selectedDraw&&LINE_TYPES.includes(m)){changeLineType(selectedDraw,m);return;}
+  if(selectedDraw&&!lineJustDrawn&&LINE_TYPES.includes(m)){changeLineType(selectedDraw,m);return;}
   setMode(m);
 }));
 // il colore aggiorna ciò che è selezionato: linea, forma (cono/cinesino/cerchio) o testo
@@ -373,6 +378,8 @@ function lineStyle(t,color){
     case 'corsa':return {stroke:color,width:3,dash:'9,7',wavy:false,head:true};
     case 'cond': return {stroke:color,width:3,dash:'',wavy:true,head:true};
     case 'tiro': return {stroke:color||'#d64545',width:5,dash:'',wavy:false,head:true};
+    case 'linea':   return {stroke:color,width:3,dash:'',wavy:false,head:false};
+    case 'lineatr': return {stroke:color,width:3,dash:'10,7',wavy:false,head:false};
     default:     return {stroke:color,width:3,dash:'',wavy:false,head:true};
   }
 }
@@ -536,7 +543,7 @@ function wireField(field,draw){
         const L=150, x2=Math.min(VBW-10,s.x+L), x1=Math.max(10,x2-L);
         const ng=buildDraw({type,color,x1,y1:s.y,x2,y2:s.y}); draw.replaceChild(ng,g); g=ng;
       }
-      selectDraw(g); // subito selezionata, con le maniglie per regolarla
+      selectDraw(g); lineJustDrawn=true; // subito selezionata, con le maniglie per regolarla
       setMode('select',true); // lo strumento si disattiva: un clic sul campo non crea un'altra freccia
     };
     document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
@@ -625,7 +632,7 @@ function wireElement(el,field){
 
 function selectEl(el){
   if(selectedDraw){selectedDraw.classList.remove('sel');selectedDraw=null;}
-  removeLineHandles();floatEl.classList.remove('line-mode');
+  removeLineHandles();floatEl.classList.remove('line-mode');lineJustDrawn=false;
   if(selectedEl)selectedEl.classList.remove('sel');
   selectedEl=el;
   if(el){el.classList.add('sel');floatEl.style.display='flex';
