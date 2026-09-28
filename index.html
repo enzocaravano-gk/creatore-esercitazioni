@@ -112,6 +112,12 @@
   .float-el button{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-size:15px}
   .float-el button:hover{background:#f4f6f8}
   .float-el button.del:hover{background:#fde8e8;border-color:var(--danger);color:var(--danger)}
+  .float-el .only-line{display:none}
+  .float-el.line-mode .only-line{display:inline-flex;align-items:center;justify-content:center}
+  .float-el .fe-sep{width:1px;background:var(--line);margin:4px 2px;align-self:stretch}
+  .float-el button.lt{padding:0}
+  .float-el button.lt.on{background:#e3f4ea;border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .float-el{flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 20px)}
 
   /* ---- Responsive: tablet / mobile ---- */
   @media screen and (max-width:820px){
@@ -224,6 +230,11 @@
   <button data-a="front" title="Porta avanti">⬆︎</button>
   <button data-a="dup" title="Duplica">⧉</button>
   <button class="del" data-a="del" title="Elimina">🗑</button>
+  <span class="fe-sep only-line"></span>
+  <button class="only-line lt" data-a="type" data-t="pass" title="Passaggio (continua)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
+  <button class="only-line lt" data-a="type" data-t="corsa" title="Corsa (tratteggiata)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
+  <button class="only-line lt" data-a="type" data-t="cond" title="Conduzione (ondulata)"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M2 12 q2 -4 4 0 t4 0 t4 0" fill="none" stroke="#111" stroke-width="2.2"/><path d="M15 7 L21 12 L15 17 Z" fill="#111"/></svg></button>
+  <button class="only-line lt" data-a="type" data-t="tiro" title="Tiro (spessa)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="16" y2="12" stroke="#d64545" stroke-width="4.5"/><path d="M15 6 L22 12 L15 18 Z" fill="#d64545"/></svg></button>
 </div>
 
 <script>
@@ -334,13 +345,19 @@ let selectedEl=null, selectedDraw=null;
 const floatEl=document.getElementById('floatEl');
 const colorInp=document.getElementById('drawColor');
 
-function setMode(m){
+const LINE_TYPES=['pass','corsa','cond','tiro'];
+function setMode(m,keepSel){
   mode=m;
   document.querySelectorAll('.mode').forEach(x=>x.classList.toggle('active',x.dataset.mode===m));
   document.querySelectorAll('.field .catch').forEach(c=>c.setAttribute('pointer-events',(m!=='select'&&m!=='gomma')?'all':'none'));
-  if(m!=='select') selectEl(null);
+  if(m!=='select'&&!keepSel) selectEl(null);
 }
-document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+// con una freccia selezionata, scegliere un tipo nella barra la converte (senza attivare il disegno)
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{
+  const m=b.dataset.mode;
+  if(selectedDraw&&LINE_TYPES.includes(m)){changeLineType(selectedDraw,m);return;}
+  setMode(m);
+}));
 // il colore aggiorna ciò che è selezionato: linea, forma (cono/cinesino/cerchio) o testo
 colorInp.addEventListener('input',()=>{
   const c=colorInp.value;
@@ -520,6 +537,7 @@ function wireField(field,draw){
         const ng=buildDraw({type,color,x1,y1:s.y,x2,y2:s.y}); draw.replaceChild(ng,g); g=ng;
       }
       selectDraw(g); // subito selezionata, con le maniglie per regolarla
+      setMode('select',true); // lo strumento si disattiva: un clic sul campo non crea un'altra freccia
     };
     document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
   });
@@ -607,7 +625,7 @@ function wireElement(el,field){
 
 function selectEl(el){
   if(selectedDraw){selectedDraw.classList.remove('sel');selectedDraw=null;}
-  removeLineHandles();
+  removeLineHandles();floatEl.classList.remove('line-mode');
   if(selectedEl)selectedEl.classList.remove('sel');
   selectedEl=el;
   if(el){el.classList.add('sel');floatEl.style.display='flex';
@@ -618,10 +636,17 @@ function selectDraw(g){
   selectEl(null);
   if(selectedDraw)selectedDraw.classList.remove('sel');
   selectedDraw=g; g.classList.add('sel');
-  floatEl.style.display='flex';
+  floatEl.style.display='flex';floatEl.classList.add('line-mode');
   if(g.dataset.color) colorInp.value=g.dataset.color;
-  refreshHandles();
+  refreshHandles();markLineType();
 }
+// cambia il tipo della freccia (continua / tratteggiata / ondulata / tiro) mantenendo forma, curva e colore
+function changeLineType(g,t){
+  if(!g||!LINE_TYPES.includes(t)) return;
+  const ng=buildDraw({type:t,color:g.dataset.color,...drawCoords(g)});
+  ng.classList.add('sel');g.parentNode.replaceChild(ng,g);selectedDraw=ng;refreshHandles();markLineType();
+}
+function markLineType(){document.querySelectorAll('#floatEl .lt').forEach(b=>b.classList.toggle('on',!!selectedDraw&&b.dataset.t===selectedDraw.dataset.type));}
 /* --- trasformazioni linee (toolbar e maniglie) --- */
 function drawCoords(g){const c={x1:+g.dataset.x1,y1:+g.dataset.y1,x2:+g.dataset.x2,y2:+g.dataset.y2};
   if(g.dataset.cx!==undefined&&g.dataset.cx!==''){c.cx=+g.dataset.cx;c.cy=+g.dataset.cy;}return c;}
@@ -673,8 +698,9 @@ function startHandleDrag(ev,field,k){
 }
 
 floatEl.addEventListener('click',e=>{
-  const a=e.target.dataset.a;if(!a)return;
+  const btn=e.target.closest('button');const a=btn&&btn.dataset.a;if(!a)return;
   if(selectedDraw){const g=selectedDraw,c=drawCoords(g);
+    if(a==='type'){changeLineType(g,btn.dataset.t);return;}
     if(a==='del'){g.remove();selectEl(null);return;}
     if(a==='rot+')rotateDraw(g,15);
     if(a==='rot-')rotateDraw(g,-15);
