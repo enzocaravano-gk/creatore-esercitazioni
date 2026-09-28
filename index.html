@@ -113,9 +113,13 @@
   .float-el button:hover{background:#f4f6f8}
   .float-el button.del:hover{background:#fde8e8;border-color:var(--danger);color:var(--danger)}
   .float-el .only-line{display:none}
+  .zi{display:inline-block;width:15px;height:11px;border:2px dashed #111;background:rgba(0,0,0,.12);vertical-align:-1px;margin-right:2px}
   .float-el.line-mode .only-line{display:inline-flex;align-items:center;justify-content:center}
   .float-el .fe-sep{width:1px;background:var(--line);margin:4px 2px;align-self:stretch}
   .float-el button.lt{padding:0}
+  .float-el .only-zone{display:none}
+  .float-el.zone-mode .only-zone{display:inline-flex;align-items:center;justify-content:center}
+  .float-el.zone-mode .no-zone{display:none}
   .float-el button.lt.on{background:#e3f4ea;border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
   .float-el{flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 20px)}
 
@@ -212,6 +216,8 @@
     <button class="mode" data-mode="tiro"><span class="sw" style="border-top-color:#d64545;border-top-width:5px"></span> Tiro</button>
     <button class="mode" data-mode="linea" title="Linea continua senza freccia (delimita zone)"><span class="sw" style="border-top-color:#111;border-top-style:solid"></span> Linea</button>
     <button class="mode" data-mode="lineatr" title="Linea tratteggiata senza freccia (delimita zone)"><span class="sw" style="border-top-color:#111;border-top-style:dashed"></span> Linea tratt.</button>
+    <button class="mode" data-mode="zrett" title="Zona rettangolare: trascina da un angolo all'altro"><span class="zi" style="border-radius:2px"></span> Zona</button>
+    <button class="mode" data-mode="zcerchio" title="Zona circolare/ovale: trascina per disegnarla"><span class="zi" style="border-radius:50%"></span> Zona</button>
     <button class="mode" data-mode="gomma">🩹 Gomma</button>
   </div>
 </div>
@@ -224,21 +230,23 @@
 </main>
 
 <div class="float-el" id="floatEl">
-  <button data-a="rot-" title="Ruota sinistra">⟲</button>
-  <button data-a="rot+" title="Ruota destra">⟳</button>
+  <button class="no-zone" data-a="rot-" title="Ruota sinistra">⟲</button>
+  <button class="no-zone" data-a="rot+" title="Ruota destra">⟳</button>
   <button data-a="small" title="Riduci">－</button>
   <button data-a="big" title="Ingrandisci">＋</button>
-  <button data-a="flip" title="Specchia">⇄</button>
+  <button class="no-zone" data-a="flip" title="Specchia">⇄</button>
   <button data-a="front" title="Porta avanti">⬆︎</button>
   <button data-a="dup" title="Duplica">⧉</button>
   <button class="del" data-a="del" title="Elimina">🗑</button>
   <span class="fe-sep only-line"></span>
-  <button class="only-line lt" data-a="type" data-t="pass" title="Passaggio (continua)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
-  <button class="only-line lt" data-a="type" data-t="corsa" title="Corsa (tratteggiata)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
-  <button class="only-line lt" data-a="type" data-t="cond" title="Conduzione (ondulata)"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M2 12 q2 -4 4 0 t4 0 t4 0" fill="none" stroke="#111" stroke-width="2.2"/><path d="M15 7 L21 12 L15 17 Z" fill="#111"/></svg></button>
-  <button class="only-line lt" data-a="type" data-t="tiro" title="Tiro (spessa)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="16" y2="12" stroke="#d64545" stroke-width="4.5"/><path d="M15 6 L22 12 L15 18 Z" fill="#d64545"/></svg></button>
-  <button class="only-line lt" data-a="type" data-t="linea" title="Linea continua (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5"/></svg></button>
-  <button class="only-line lt" data-a="type" data-t="lineatr" title="Linea tratteggiata (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="pass" title="Passaggio (continua)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="corsa" title="Corsa (tratteggiata)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="17" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M16 7 L22 12 L16 17 Z" fill="#111"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="cond" title="Conduzione (ondulata)"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M2 12 q2 -4 4 0 t4 0 t4 0" fill="none" stroke="#111" stroke-width="2.2"/><path d="M15 7 L21 12 L15 17 Z" fill="#111"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="tiro" title="Tiro (spessa)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="16" y2="12" stroke="#d64545" stroke-width="4.5"/><path d="M15 6 L22 12 L15 18 Z" fill="#d64545"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="linea" title="Linea continua (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5"/></svg></button>
+  <button class="only-line no-zone lt" data-a="type" data-t="lineatr" title="Linea tratteggiata (senza freccia)"><svg viewBox="0 0 24 24" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12" stroke="#111" stroke-width="2.5" stroke-dasharray="4 3"/></svg></button>
+  <button class="only-zone lt" data-a="type" data-t="zrett" title="Zona rettangolare"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="3" y="6" width="18" height="12" fill="rgba(0,0,0,.15)" stroke="#111" stroke-width="2" stroke-dasharray="3 2"/></svg></button>
+  <button class="only-zone lt" data-a="type" data-t="zcerchio" title="Zona circolare"><svg viewBox="0 0 24 24" width="22" height="22"><ellipse cx="12" cy="12" rx="9" ry="7" fill="rgba(0,0,0,.15)" stroke="#111" stroke-width="2" stroke-dasharray="3 2"/></svg></button>
 </div>
 
 <script>
@@ -351,6 +359,10 @@ const floatEl=document.getElementById('floatEl');
 const colorInp=document.getElementById('drawColor');
 
 const LINE_TYPES=['pass','corsa','cond','tiro','linea','lineatr'];
+const ZONE_TYPES=['zrett','zcerchio'];
+const isZone=t=>ZONE_TYPES.includes(t);
+// si converte solo nella stessa famiglia: freccia/linea <-> freccia/linea, zona <-> zona
+const sameFamily=(a,b)=>(LINE_TYPES.includes(a)&&LINE_TYPES.includes(b))||(isZone(a)&&isZone(b));
 function setMode(m,keepSel){
   mode=m;
   document.querySelectorAll('.mode').forEach(x=>x.classList.toggle('active',x.dataset.mode===m));
@@ -360,7 +372,7 @@ function setMode(m,keepSel){
 // con una freccia selezionata, scegliere un tipo nella barra la converte (senza attivare il disegno)
 document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{
   const m=b.dataset.mode;
-  if(selectedDraw&&!lineJustDrawn&&LINE_TYPES.includes(m)){changeLineType(selectedDraw,m);return;}
+  if(selectedDraw&&!lineJustDrawn&&sameFamily(selectedDraw.dataset.type,m)){changeLineType(selectedDraw,m);return;}
   setMode(m);
 }));
 // il colore aggiorna ciò che è selezionato: linea, forma (cono/cinesino/cerchio) o testo
@@ -406,6 +418,13 @@ function buildDraw(o){
   const g=svgEl('g',{class:'draw-g'}); g.dataset.type=o.type; g.dataset.color=o.color;
   g.dataset.x1=o.x1;g.dataset.y1=o.y1;g.dataset.x2=o.x2;g.dataset.y2=o.y2;
   if(hasCurve(o)){g.dataset.cx=o.cx;g.dataset.cy=o.cy;}
+  if(isZone(o.type)){ // zona: rettangolo o ovale inscritto tra i due angoli, bordo tratteggiato e fondo semitrasparente
+    const x=Math.min(o.x1,o.x2),y=Math.min(o.y1,o.y2),w=Math.abs(o.x2-o.x1),h=Math.abs(o.y2-o.y1);
+    const shape=(extra)=>o.type==='zcerchio'?svgEl('ellipse',{cx:x+w/2,cy:y+h/2,rx:w/2,ry:h/2,...extra}):svgEl('rect',{x,y,width:w,height:h,rx:4,...extra});
+    g.appendChild(shape({class:'vis','pointer-events':'none',fill:o.color,'fill-opacity':.18,stroke:o.color,'stroke-width':3,'stroke-dasharray':'10,7'}));
+    g.appendChild(shape({class:'hit',fill:'none',stroke:'transparent','stroke-width':22,'pointer-events':'stroke'}));
+    return g;
+  }
   const base=basePathD(o);
   const d = st.wavy? wavyD(o) : base;
   const hit=svgEl('path',{d:base,class:'hit',fill:'none',stroke:'transparent','stroke-width':22,'pointer-events':'stroke','stroke-linecap':'round'});
@@ -539,7 +558,10 @@ function wireField(field,draw){
       draw.replaceChild(ng,g); g=ng;};
     const up=ev=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);
       const p=pointToVB(field,ev.clientX,ev.clientY);
-      if(Math.hypot(p.x-s.x,p.y-s.y)<8){ // tocco: freccia standard verso destra (resta nel campo)
+      if(Math.hypot(p.x-s.x,p.y-s.y)<8&&isZone(type)){ // tocco: zona standard centrata sul punto
+        const w=type==='zcerchio'?140:200,h=140,cx=Math.min(VBW-w/2-5,Math.max(w/2+5,s.x)),cy=Math.min(VBH-h/2-5,Math.max(h/2+5,s.y));
+        const ng=buildDraw({type,color,x1:cx-w/2,y1:cy-h/2,x2:cx+w/2,y2:cy+h/2}); draw.replaceChild(ng,g); g=ng;
+      } else if(Math.hypot(p.x-s.x,p.y-s.y)<8){ // tocco: freccia standard verso destra (resta nel campo)
         const L=150, x2=Math.min(VBW-10,s.x+L), x1=Math.max(10,x2-L);
         const ng=buildDraw({type,color,x1,y1:s.y,x2,y2:s.y}); draw.replaceChild(ng,g); g=ng;
       }
@@ -632,7 +654,7 @@ function wireElement(el,field){
 
 function selectEl(el){
   if(selectedDraw){selectedDraw.classList.remove('sel');selectedDraw=null;}
-  removeLineHandles();floatEl.classList.remove('line-mode');lineJustDrawn=false;
+  removeLineHandles();floatEl.classList.remove('line-mode','zone-mode');lineJustDrawn=false;
   if(selectedEl)selectedEl.classList.remove('sel');
   selectedEl=el;
   if(el){el.classList.add('sel');floatEl.style.display='flex';
@@ -643,13 +665,13 @@ function selectDraw(g){
   selectEl(null);
   if(selectedDraw)selectedDraw.classList.remove('sel');
   selectedDraw=g; g.classList.add('sel');
-  floatEl.style.display='flex';floatEl.classList.add('line-mode');
+  floatEl.style.display='flex';floatEl.classList.add('line-mode');floatEl.classList.toggle('zone-mode',isZone(g.dataset.type));
   if(g.dataset.color) colorInp.value=g.dataset.color;
   refreshHandles();markLineType();
 }
 // cambia il tipo della freccia (continua / tratteggiata / ondulata / tiro) mantenendo forma, curva e colore
 function changeLineType(g,t){
-  if(!g||!LINE_TYPES.includes(t)) return;
+  if(!g||!sameFamily(g.dataset.type,t)) return;
   const ng=buildDraw({type:t,color:g.dataset.color,...drawCoords(g)});
   ng.classList.add('sel');g.parentNode.replaceChild(ng,g);selectedDraw=ng;refreshHandles();markLineType();
 }
@@ -688,6 +710,8 @@ function refreshHandles(){
     });
   }
   const c=drawCoords(g),mid=qPt(c,ctrlOf(c),0.5);
+  const zone=isZone(g.dataset.type);lineHandles[1].style.display=zone?'none':'';
+  lineHandles[0].title=lineHandles[2].title=zone?'Trascina per ridimensionare la zona':'Trascina per allungare, accorciare o orientare';
   const pos=[[c.x1,c.y1],[mid.x,mid.y],[c.x2,c.y2]];
   lineHandles.forEach((h,i)=>{h.style.left=(pos[i][0]/VBW*100)+'%';h.style.top=(pos[i][1]/VBH*100)+'%';});
 }
