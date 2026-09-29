@@ -81,6 +81,8 @@
   .field-box{flex:1;min-width:0}
   .field{position:relative;--arw:1050;--arh:680;width:min(100%, calc(var(--field-maxh) * var(--arw) / var(--arh)));aspect-ratio:var(--arw) / var(--arh);margin:0 auto;border-radius:10px;overflow:hidden;background:#2f9e4f;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);container-type:inline-size}
   .field svg.pitch,.field svg.draw{position:absolute;inset:0;width:100%;height:100%}
+  /* iPad/iPhone: tocchi ravvicinati (es. +/- ripetuti) non devono attivare lo zoom a doppio tocco; il pinch resta attivo */
+  html,body,button,.pal-item,.float-el,.toolbar{touch-action:manipulation}
   .field svg.draw{touch-action:none}
   .drop-el{position:absolute;cursor:grab;user-select:none;touch-action:none;z-index:5}
   .drop-el:active{cursor:grabbing}
@@ -987,6 +989,7 @@ function syncNotesForPrint(){
   });
 }
 window.addEventListener('beforeprint',syncNotesForPrint);
+document.addEventListener('dblclick',e=>{if(e.target.closest('button,.float-el,.pal-item'))e.preventDefault();},{passive:false});
 document.getElementById('btnPrint').onclick=async()=>{syncNotesForPrint();await Promise.all([...kitPending]);window.print();};
 window.addEventListener('beforeunload',()=>{try{localStorage.setItem('esercitazione_auto',JSON.stringify(collect()));}catch(e){}});
 
